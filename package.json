@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/urbiworx/node-red-contrib-hue.git"
+    "url": "https://github.com/AntoineLT/ttb-node-hue.git"
   },
   "keywords": [
     "node-red",

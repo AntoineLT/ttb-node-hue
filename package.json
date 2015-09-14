@@ -1,6 +1,6 @@
 {
   "name": "ttb-node-hue",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Hue Nodes for Node Red",
   "dependencies": {
     "node-hue-api": "1.0.2",

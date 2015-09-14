@@ -1,0 +1,7 @@
+{
+    "hue": {
+        "bridge": "Bridge",
+        "bulb": "Bulb",
+        "name": "Name"
+    }
+}

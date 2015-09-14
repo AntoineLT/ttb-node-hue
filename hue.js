@@ -1,3 +1,11 @@
+/*
+
+Modified for the Thingbox
+Digital Airways 2015
+
+*/
+
+
 /**
  * Copyright 2015 Urbiworx.
  *
@@ -13,9 +21,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+ 
 var urllib = require("url");
 var fs = require("fs");
 var hue = require("node-hue-api");
+var Chromath = require('chromath')
 
 module.exports = function(RED) {
     "use strict";
@@ -83,9 +93,44 @@ module.exports = function(RED) {
 			}
 			var api=new hue.HueApi(that.ip,config[that.serverid]);
 			var lightState=hue.lightState.create();
-			for (var item in msg.payload){
-				lightState=lightState[item].apply(lightState,msg.payload[item]);
+			
+			// Use Thingbox intents
+			if(msg.transitiontime)
+				lightState=lightState.transitiontime.call(lightState,msg.transitiontime);
+				
+			if(msg.intent == 0 || msg.intent == 1 )
+				lightState=lightState.on.call(lightState,msg.intent == 1 ? true : false);
+				
+			if(msg.brightness != undefined)
+				lightState=lightState.bri.call(lightState,msg.brightness);
+				
+			if(msg.intensity != undefined)
+				lightState=lightState.bri.call(lightState,msg.intensity);
+				
+			if(msg.hue != undefined)
+				lightState=lightState.hue.call(lightState,msg.hue);
+				
+			if(msg.saturation != undefined)
+				lightState=lightState.saturation.call(lightState,msg.saturation);
+			
+			if(msg.color){
+				try {
+					var rgb = new Chromath(msg.color).toRGBArray();
+					lightState.rgb(rgb);
+				}
+				catch(e){
+					that.warn("bad format color. (ex. #ffffff)");
+				}
 			}
+			
+			
+			// override with potential payload values
+			if(typeof msg.payload === "object")
+				for (var item in msg.payload){
+					if(lightState[item] != undefined)
+						lightState=lightState[item].apply(lightState,msg.payload[item]);
+				}
+			
 			var resultFunction=function(err, lights) {
 				if (err){
 					that.send([null,{payload:err}]);

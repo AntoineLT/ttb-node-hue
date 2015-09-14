@@ -1,0 +1,98 @@
+<!--
+Modified for the Thingbox
+Digital Airways 2015
+-->
+
+<!--
+  Copyright 2015 Urbiworx
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-help-name="Hue Pull">
+    <p>Retourne l'état courant de l'appareil sélectionné.</p>
+    <p>Par exemple:<br>
+<pre>
+{  
+   "state":{  
+      "on":true,
+      "bri":1,
+      "hue":46353,
+      "sat":249,
+      "xy":[  
+         0.1448,
+         0.0964
+      ],
+      "alert":"none",
+      "effect":"none",
+      "colormode":"xy",
+      "reachable":true
+   },
+   "type":"Color light",
+   "name":"Color light 3",
+   "modelid":"LLC011",
+   "uniqueid":"...",
+   "swversion":"66009461",
+   "pointsymbol":{  
+      "1":"none",
+      "2":"none",
+      "3":"none",
+      "4":"none",
+      "5":"none",
+      "6":"none",
+      "7":"none",
+      "8":"none"
+   }
+}</pre>
+	</p>
+</script>
+
+<script type="text/x-red" data-help-name="Hue Set">
+    <p>Utilisez ce node pour gérer une ampoule Hue de Philips.</p>
+    <p>Utilisez l'intent "open" pour alumer la lumière, et l'intent "close"
+    pour l'éteindre.</p>
+    
+    <p>Utilisez le node Intensity pour définir les paramètres :</p>
+    
+    <ul>
+        <li><b>Intensité ou lumière</b> : Définit la lumière, qui peut avoir
+        une valeur comprise entre 0 et 255.</li>
+        <li><b>hue</b> : Définis le hue, sa valeur est comprise entre 0 et
+        65535.</li>
+        <li><b>saturation</b> : Définit la saturation avec une valeur allant de
+        0 à 255.</li>
+        <li><b>temps de transition</b> : Définit le temps de transition.
+        Utilisez 20 pour quelques secondes ou 0 pour un changement immédiat.</li>
+    </ul>
+    <p>Utilisez le node color pour définir la couleur de l'ampoule.</p>
+    
+    <p>Note : cette version n'est pas capable de comprendre les intents "less"
+    et "more".</p>
+
+    <h3>Utilisateurs avancé</h3>
+        <p>Vou pouvez aussi utiliser le node "function" pour adresser le logiciel bas niveau.
+        Merci de suivre la documentation du lien suivant pour les options :
+        <a href="https://github.com/peter-murray/node-hue-api#lightstate-options" target="_blank">
+            API docs
+        </a>.<br/>
+        Exemple de node "function":<br/>
+<pre>
+msg.payload={
+	"on":[true],
+	"transitiontime":[0],
+	"bri":[1],
+	"rgb":[75,75,255]
+}
+return msg;</pre>
+	</p>
+</script>

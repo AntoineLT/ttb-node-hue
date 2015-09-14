@@ -1,4 +1,9 @@
 <!--
+Modified for the Thingbox
+Digital Airways 2015
+-->
+
+<!--
   Copyright 2015 Urbiworx
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,17 +22,17 @@
 
 <script type="text/x-red" data-template-name="Hue Pull">
     <div class="form-row">
-        <label for="node-input-serverid"><i class="fa fa-lightbulb-o"></i> Server</label>
+        <label for="node-input-serverid"><i class="fa fa-lightbulb-o"></i> <span data-i18n="hue.bridge"></span></label>
 		<input type="text" id="node-input-serverid" style="width: 250px;">
         </input>
     </div>
     <div class="form-row">
-        <label for="node-input-deviceid"><i class="fa fa-lightbulb-o"></i> Device</label>
+        <label for="node-input-deviceid"><i class="fa fa-lightbulb-o"></i> <span data-i18n="hue.bulb"></span></label>
 		<input type="text" id="node-input-deviceid" style="width: 250px;">
         </input>
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="hue.name"></span></label>
 		<input type="text" id="node-input-name" style="width: 250px;">
         </input>
     </div>
@@ -37,17 +42,17 @@
 
 <script type="text/x-red" data-template-name="Hue Set">
     <div class="form-row">
-        <label for="node-input-serverid"><i class="fa fa-lightbulb-o"></i> Server</label>
+        <label for="node-input-serverid"><i class="fa fa-lightbulb-o"></i> <span data-i18n="hue.bridge"></span></label>
 		<input type="text" id="node-input-serverid" style="width: 250px;">
         </input>
     </div>
     <div class="form-row">
-        <label for="node-input-deviceid"><i class="fa fa-lightbulb-o"></i> Device</label>
+        <label for="node-input-deviceid"><i class="fa fa-lightbulb-o"></i> <span data-i18n="hue.bulb"></span></label>
 		<input type="text" id="node-input-deviceid" style="width: 250px;">
         </input>
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="hue.name"></span></label>
 		<input type="text" id="node-input-name" style="width: 250px;">
         </input>
     </div>
@@ -95,8 +100,31 @@
 </script>
 
 <script type="text/x-red" data-help-name="Hue Set">
-    <p>Sets the state of the selected device. Please see the documentation of the underlying API for options: <a href="https://github.com/peter-murray/node-hue-api#lightstate-options">API docs</a>.<br/>
-	Example (function node):<br/>
+    <p>Use this node to manage Philips Hue bulbs</p>
+    <p>use intent open node to switch the light on, and intent Close to
+    switch off.</p>
+
+    <p>Use Intensity nodes to set parameters:</p>
+    <ul>
+        <li><b>intensity or brightness</b>:Sets the brightness, where value
+        from 0 to 255</li>
+        <li><b>hue</b>:Sets the hue, where value from 0 to 65535</li>
+        <li><b>saturation</b>:Sets the saturation value from 0 to 255</li>
+        <li><b>transitiontime</b>:Sets a transition time. Use 20 for some
+        seconds or 0 for immediate change.</li>
+    </ul>
+    <p>Use the color node to set the color of the bulb.</p>
+
+    <p>Note: this version is not able to understand the intents "less" and
+    "more".</p>
+
+    <h3>Advanced users</h3>
+        <p>You can also use a node function to adress the low level software.
+        Please see the documentation of the underlying API for options:
+        <a href="https://github.com/peter-murray/node-hue-api#lightstate-options" target="_blank">
+            API docs
+        </a>.<br/>
+        Example (function node):<br/>
 <pre>
 msg.payload={
 	"on":[true],
@@ -104,8 +132,7 @@ msg.payload={
 	"bri":[1],
 	"rgb":[75,75,255]
 }
-return msg;	
-</pre>
+return msg;</pre>
 	</p>
 </script>
 
@@ -118,6 +145,11 @@ return msg;
 			$("#node-input-serverid").replaceWith('<select id="node-input-serverid" name="node-input-serverid" style="width: 250px;">');
 			$("#node-input-deviceid").replaceWith('<select id="node-input-deviceid" name="node-input-deviceid" style="width: 250px;">');
 			$('#node-input-serverid').find('option').remove();
+			$("#node-input-deviceid").change(function(){
+				if(!$("#node-input-name").val()){
+					$("#node-input-name").val($("#node-input-deviceid option:selected").text());
+				}
+			});
 			
 			var deviceRefresh=function(){
 				if ($('#node-input-serverid').val()==null){
@@ -130,7 +162,7 @@ return msg;
 					var data=JSON.parse(data);
 						if (data.error===1){
 							$("#node-dialog-cancel").click();
-							$("<div>Please press the sync button on your hue first.</div>").dialog();
+							$("<div>Please press the sync button on your hue and try again after.</div>").dialog();
 							return;
 						}
 						$.each( data.lights, function( key, value ) {
@@ -161,7 +193,10 @@ return msg;
 				  success: function(data) {
 					var data=JSON.parse(data);
 					for (var i=0;i<data.length;i++) {
-						$('#node-input-serverid').find('option').end().append('<option value="'+data[i].id+'">'+data[i].name+'</option>');
+						var name = data[i].name;
+						if(!data[i].name)
+							name = "Bridge";
+						$('#node-input-serverid').find('option').end().append('<option value="'+data[i].id+'">'+name+'</option>');
 					}
 					if (typeof(listener)!=="undefined"){
 						listener();
@@ -173,7 +208,7 @@ return msg;
 	};
     RED.nodes.registerType('Hue Pull', {
         category: 'advanced',
-        color: "rgb(218, 196, 180)",
+        color: "#ffffff",
         defaults: {
 			deviceid: {value: ""},
             serverid: {value: ""},
@@ -181,9 +216,11 @@ return msg;
         },
         inputs: 1,
         outputs: 2,
-        icon: "feed.png",
+        icon: "hue.png",
+		align:"right",
+		paletteLabel:"Hue Pull&nbsp;",
         label: function() {
-			return this.name||"Hue Data Pull";
+			return this.name||"Hue Pull";
         },
         labelStyle: function() {
             return this.name ? "node_label_italic" : "";
@@ -192,7 +229,7 @@ return msg;
     });
     RED.nodes.registerType('Hue Set', {
         category: 'advanced',
-        color: "rgb(218, 196, 180)",
+        color: "#ffffff",
         defaults: {
 			deviceid: {value: ""},
             serverid: {value: ""},
@@ -200,9 +237,11 @@ return msg;
         },
         inputs: 1,
         outputs: 2,
-        icon: "feed.png",
+        icon: "hue.png",
+		align:"right",
+		paletteLabel:"Hue Set&nbsp;",
         label: function() {
-			return this.name||"Hue Set Device";
+			return this.name||"Hue Set";
         },
         labelStyle: function() {
             return this.name ? "node_label_italic" : "";

@@ -1,3 +1,3 @@
 # Hue Node for Node RED
 
-This fork is done to implement the node in [TheThingBox Project](http://thethingbox.io/) and TimeSquAir
+Fork of [node-red-contrib-hue node](https://github.com/urbiworx/node-red-contrib-hue) done to implement the node in [TheThingBox Project](http://thethingbox.io/) and TimeSquAir

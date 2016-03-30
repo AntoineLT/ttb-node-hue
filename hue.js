@@ -105,7 +105,7 @@ module.exports = function(RED) {
 				lightState=lightState.bri.call(lightState,msg.brightness);
 				
 			if(msg.intensity != undefined)
-				lightState=lightState.bri.call(lightState,msg.intensity);
+				lightState=lightState.bri.call(lightState,msg.intensity*2.55); // l'intensity est sur 100 et la valeur demandée sur 255
 				
 			if(msg.hue != undefined)
 				lightState=lightState.hue.call(lightState,msg.hue);

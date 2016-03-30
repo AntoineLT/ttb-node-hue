@@ -1,16 +1,19 @@
 {
   "name": "ttb-node-hue",
   "version": "0.0.11",
-  "description": "Hue Nodes for Node Red",
+  "description": "Nodes to handle Philips Hue for the Thingbox and TimeSquAir (and also stock Node-RED)",
   "dependencies": {
     "node-hue-api": "1.0.2",
     "chromath": "0.0.6"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/AntoineLT/ttb-node-hue.git"
+    "url": "https://github.com/TheThingBox/ttb-node-hue.git"
   },
   "keywords": [
+    "thingbox",
+    "thethingbox",
+    "timesquair",
     "node-red",
     "hue"
   ],

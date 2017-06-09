@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Nodes to handle Philips Hue for the Thingbox and TimeSquAir (and also stock Node-RED)",
   "dependencies": {
-    "node-hue-api": "1.0.2",
+    "node-hue-api": "1.0.3",
     "chromath": "0.0.6"
   },
   "repository": {

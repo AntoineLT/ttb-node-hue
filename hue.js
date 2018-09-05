@@ -158,7 +158,39 @@ module.exports = function(RED) {
 		hue.nupnpSearch(function(err, result) {
 			if (err) throw err;
 			upnpresult=result;
-			res.end(JSON.stringify(result));
+			if(!Array.isArray(result)){
+				result = [result];
+			}
+			var _p = [];
+			for(var i in result){
+				var r = result[i];
+				(function(ip, id) {
+					var _api = new hue.HueApi(ip, "Node RED");
+					_p.push(new Promise(function(resolve, reject){
+						_api.config().then(c => {
+							c.host = ip;
+							c.id = id;
+							resolve(c);
+						}).catch(err => {
+							resolve(null);
+						});
+					}));
+				})(r.ipaddress, r.id);
+			}
+			Promise.all(_p).then(function(values){
+				var bridges = [{}];
+				for(var i in values){
+					if(values[i] !== null){
+						bridges.push({
+							id: values[i].id,
+							name: values[i].name || "HUE Bridge (" + this._config.host + ")"
+						});
+					}
+				}
+				res.end(JSON.stringify(bridges));
+			}).catch(err => {
+				res.end(JSON.stringify("[]"));
+			});
 		});
 		return;
 	});

@@ -93,13 +93,20 @@ module.exports = function(RED) {
 			}
 			var api=new hue.HueApi(that.ip,config[that.serverid]);
 			var lightState=hue.lightState.create();
-			
-			// Use Thingbox intents
 			if(msg.transitiontime)
 				lightState=lightState.transitiontime.call(lightState,msg.transitiontime);
-				
-			if(msg.intent == 0 || msg.intent == 1 )
-				lightState=lightState.on.call(lightState,msg.intent == 1 ? true : false);
+			
+			// Use Thingbox intents
+			
+			if(msg.intent===undefined) {
+				// try to use the payload if no intents
+				msg.intent = msg.payload;
+			}
+      
+			if(msg.intent == 0)
+				lightState=lightState.on.call(lightState, false);
+			if(msg.intent == 1)
+				lightState=lightState.on.call(lightState, true);
 				
 			if(msg.brightness != undefined)
 				lightState=lightState.bri.call(lightState,msg.brightness);
@@ -122,14 +129,6 @@ module.exports = function(RED) {
 					that.warn("bad format color. (ex. #ffffff)");
 				}
 			}
-			
-			
-			// override with potential payload values
-			if(typeof msg.payload === "object")
-				for (var item in msg.payload){
-					if(lightState[item] != undefined)
-						lightState=lightState[item].apply(lightState,msg.payload[item]);
-				}
 			
 			var resultFunction=function(err, lights) {
 				if (err){

@@ -205,7 +205,7 @@ module.exports = function(RED) {
 		
 		var ip=getIpForServer(req.params.serverid);
 		if(typeof(config[req.params.serverid])==="undefined"){
-			(new hue.HueApi()).createUser(ip, null, "Node RED", function(err, user) {
+			(new hue.HueApi()).createUser(ip, function(err, user) {
 				if (err!=null){
 					res.end(JSON.stringify({error:1}));
 					return;

@@ -137,10 +137,11 @@ return msg;</pre>
 </script>
 
 <script type="text/javascript">
-
 	function generatePreparator(){
 		return function(){
 			var valueserver=$('#node-input-serverid').val();
+			var that = this;
+
 			var valuedevice=$('#node-input-deviceid').val();
 			$("#node-input-serverid").replaceWith('<select id="node-input-serverid" name="node-input-serverid" style="width: 250px;">');
 			$("#node-input-deviceid").replaceWith('<select id="node-input-deviceid" name="node-input-deviceid" style="width: 250px;">');
@@ -148,6 +149,16 @@ return msg;</pre>
 			$("#node-input-deviceid").change(function(){
 				if(!$("#node-input-name").val()){
 					$("#node-input-name").val($("#node-input-deviceid option:selected").text());
+				}
+				var _sid = $("#node-input-serverid").val();
+				var _did = $("#node-input-deviceid").val();
+				if(_sid && _did){
+					$.ajax({
+						url: "philipshue/"+that.id+"/server/"+_sid+"/device/"+_did+"/select",
+						method: "GET",
+						success: function(){},
+						error:console.error
+					});
 				}
 			});
 			
@@ -210,9 +221,7 @@ return msg;</pre>
         category: 'Things',
         color: "#ffffff",
         defaults: {
-			deviceid: {value: ""},
-            serverid: {value: ""},
-			name: {value: ""}
+		name: {value: ""}
         },
         inputs: 1,
         outputs: 2,
@@ -231,9 +240,7 @@ return msg;</pre>
         category: 'Things',
         color: "#ffffff",
         defaults: {
-			deviceid: {value: ""},
-            serverid: {value: ""},
-			name: {value: ""}
+		name: {value: ""}
         },
         inputs: 1,
         outputs: 2,

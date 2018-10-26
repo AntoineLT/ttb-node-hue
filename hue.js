@@ -37,7 +37,7 @@ module.exports = function(RED) {
 		userDir=RED.settings.userDir+"/";
 	} 
 	
-	fs.readFile(userDir+'hue.config', function (err, data) {
+	fs.readFile(userDir+'nodes_configurations/hue.config', function (err, data) {
 		if (err!=null){
 			config={};
 			return;
@@ -54,6 +54,14 @@ module.exports = function(RED) {
 		var that=this;
 		this.deviceid=n.deviceid;
 		this.serverid=n.serverid;
+  	try{
+			var _t = JSON.parse(fs.readFileSync(userDir+"nodes_configurations/"+this.id+".json"));
+			this.deviceid = _t.deviceid;
+			this.serverid = _t.serverid;
+		}catch(e){
+			this.deviceid="";
+			this.serverid="";
+		}
 		this.ip=getIpForServer(this.serverid);
 		this.on("input",function(msg) {
 			if (!that.ip){
@@ -211,7 +219,7 @@ module.exports = function(RED) {
 					return;
 				}
 				config[req.params.serverid]=user;
-				fs.writeFile(userDir+"hue.config",JSON.stringify(config));
+				fs.writeFile(userDir+"nodes_configurations/hue.config",JSON.stringify(config));
 				returnDevices();
 			});
 		} else {
@@ -219,5 +227,16 @@ module.exports = function(RED) {
 		}		
 	});
     
-	
+	RED.httpAdmin.get("/philipshue/:nodeid/server/:serverid/device/:deviceid/select", function(req, res, next){
+		var _sid = req.params.serverid;
+		var _did = req.params.deviceid;
+		if(_sid == null || _did == null){
+			return;
+		}
+		if(!fs.existsSync(userDir+"nodes_configurations/")){
+			fs.mkdirSync(userDir+"nodes_configurations/");
+		}
+		console.log("Set HUE ",_sid,_did);
+		fs.writeFileSync(userDir+"nodes_configurations/"+req.params.nodeid+".json", JSON.stringify({"serverid":_sid,"deviceid":_did}));
+	});
 }

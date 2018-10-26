@@ -35,7 +35,19 @@ module.exports = function(RED) {
 	var userDir="";
 	if (RED.settings.userDir){
 		userDir=RED.settings.userDir+"/";
-	} 
+	}
+	var readConfiguration = function(id){
+		var conf = {};
+		try{
+			var _t = JSON.parse(fs.readFileSync(userDir+"nodes_configurations/"+id+".json"));
+			conf.deviceid = _t.deviceid;
+			conf.serverid = _t.serverid;
+		}catch(e){
+			conf.deviceid="";
+			conf.serverid="";
+		}
+		return conf;
+	};
 	
 	fs.readFile(userDir+'nodes_configurations/hue.config', function (err, data) {
 		if (err!=null){
@@ -52,16 +64,10 @@ module.exports = function(RED) {
     function HueNodeOut(n) {
         RED.nodes.createNode(this,n);
 		var that=this;
-		this.deviceid=n.deviceid;
-		this.serverid=n.serverid;
-  	try{
-			var _t = JSON.parse(fs.readFileSync(userDir+"nodes_configurations/"+this.id+".json"));
-			this.deviceid = _t.deviceid;
-			this.serverid = _t.serverid;
-		}catch(e){
-			this.deviceid="";
-			this.serverid="";
-		}
+		var _c = readConfiguration(this.id);
+		this.deviceid=_c.deviceid;
+		this.serverid=_c.serverid;
+  	
 		this.ip=getIpForServer(this.serverid);
 		this.on("input",function(msg) {
 			if (!that.ip){
@@ -92,8 +98,10 @@ module.exports = function(RED) {
 	function HueNodeSet(n) {
         RED.nodes.createNode(this,n);
 		var that=this;
-		this.deviceid=n.deviceid;
-		this.serverid=n.serverid;
+		var _c = readConfiguration(this.id);
+		this.deviceid=_c.deviceid;
+		this.serverid=_c.serverid;
+
 		this.ip=getIpForServer(this.serverid);
 		this.on("input",function(msg) {
 			if (!that.ip){
@@ -238,5 +246,11 @@ module.exports = function(RED) {
 		}
 		console.log("Set HUE ",_sid,_did);
 		fs.writeFileSync(userDir+"nodes_configurations/"+req.params.nodeid+".json", JSON.stringify({"serverid":_sid,"deviceid":_did}));
+	});
+
+	RED.httpAdmin.get("/philipshue/:nodeid/configuration", function(req, res, next){
+		var _c = readConfiguration(req.params.nodeid);
+		
+		res.end(JSON.stringify(_c));
 	});
 }

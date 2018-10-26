@@ -139,89 +139,100 @@ return msg;</pre>
 <script type="text/javascript">
 	function generatePreparator(){
 		return function(){
-			var valueserver=$('#node-input-serverid').val();
 			var that = this;
+      var valueserver="";//$('#node-input-serverid').val();
+			var valuedevice="";//$('#node-input-deviceid').val();
+      $.ajax({
+        url: "philipshue/"+that.id+"/configuration",
+        method: "GET",
+        success: function(_conf){
+          _conf = JSON.parse(_conf);
+          valueserver = _conf.serverid;
+          valuedevice = _conf.deviceid;
+          
+          $("#node-input-serverid").replaceWith('<select id="node-input-serverid" name="node-input-serverid" style="width: 250px;">');
+          $("#node-input-deviceid").replaceWith('<select id="node-input-deviceid" name="node-input-deviceid" style="width: 250px;">');
+          $('#node-input-serverid').find('option').remove();
+          $("#node-input-deviceid").change(function(){
+            if(!$("#node-input-name").val()){
+              $("#node-input-name").val($("#node-input-deviceid option:selected").text());
+            }
+            var _sid = $("#node-input-serverid").val();
+            var _did = $("#node-input-deviceid").val();
+            if(_sid && _did){
+              $.ajax({
+                url: "philipshue/"+that.id+"/server/"+_sid+"/device/"+_did+"/select",
+                method: "GET",
+                success: function(){},
+                error:console.error
+              });
+            }
+          });
+          
+          var deviceRefresh=function(){
+            if ($('#node-input-serverid').val()==null){
+              return;
+            }
+            $('#node-input-deviceid').find('option').remove();
+            $.ajax({
+              url: "philipshue/devices/"+$('#node-input-serverid').val(),
+              success: function(data) {
+              var data=JSON.parse(data);
+                if (data.error===1){
+                  $("#node-dialog-cancel").click();
+                  $("<div>Please press the sync button on your hue and try again after.</div>").dialog();
+                  return;
+                }
+                $.each( data.lights, function( key, value ) {
+                  $('#node-input-deviceid').find('option').end().append('<option value="'+key+'">'+value.name+'</option>');
+                });
+                $('#node-input-deviceid').find('option').end().append('<option disabled>----------</option>');
+                $('#node-input-deviceid').find('option').end().append('<option value="g-0">All</option>');
+                $.each( data.groups, function( key, value ) {
+                  $('#node-input-deviceid').find('option').end().append('<option value="g-'+key+'">'+value.name+'</option>');
+                });
+                $('#node-input-deviceid').val(valuedevice);
+              }
+            });
+          };
+          $("#node-input-serverid").change(deviceRefresh);
+          refresh(function(){
+            $('#node-input-serverid').val(valueserver);
+            deviceRefresh();
+            /*
+            $("#node-input-devicetype").change(function(){
+              $('#node-input-serverid').find('option').remove();
+              refresh();
+            });*/
+          });
+          function refresh(listener){
+            $.ajax({
+              url: "philipshue/server",
+              success: function(data) {
+              var data=JSON.parse(data);
+              for (var i=0;i<data.length;i++) {
+                var name = data[i].name;
+                if(!data[i].name)
+                  name = "Bridge";
+                $('#node-input-serverid').find('option').end().append('<option value="'+data[i].id+'">'+name+'</option>');
+              }
+              if (typeof(listener)!=="undefined"){
+                listener();
+              }
+             }
+            });
+          };
 
-			var valuedevice=$('#node-input-deviceid').val();
-			$("#node-input-serverid").replaceWith('<select id="node-input-serverid" name="node-input-serverid" style="width: 250px;">');
-			$("#node-input-deviceid").replaceWith('<select id="node-input-deviceid" name="node-input-deviceid" style="width: 250px;">');
-			$('#node-input-serverid').find('option').remove();
-			$("#node-input-deviceid").change(function(){
-				if(!$("#node-input-name").val()){
-					$("#node-input-name").val($("#node-input-deviceid option:selected").text());
-				}
-				var _sid = $("#node-input-serverid").val();
-				var _did = $("#node-input-deviceid").val();
-				if(_sid && _did){
-					$.ajax({
-						url: "philipshue/"+that.id+"/server/"+_sid+"/device/"+_did+"/select",
-						method: "GET",
-						success: function(){},
-						error:console.error
-					});
-				}
-			});
-			
-			var deviceRefresh=function(){
-				if ($('#node-input-serverid').val()==null){
-					return;
-				}
-				$('#node-input-deviceid').find('option').remove();
-				$.ajax({
-				  url: "philipshue/devices/"+$('#node-input-serverid').val(),
-				  success: function(data) {
-					var data=JSON.parse(data);
-						if (data.error===1){
-							$("#node-dialog-cancel").click();
-							$("<div>Please press the sync button on your hue and try again after.</div>").dialog();
-							return;
-						}
-						$.each( data.lights, function( key, value ) {
-							$('#node-input-deviceid').find('option').end().append('<option value="'+key+'">'+value.name+'</option>');
-						});
-						$('#node-input-deviceid').find('option').end().append('<option disabled>----------</option>');
-						$('#node-input-deviceid').find('option').end().append('<option value="g-0">All</option>');
-						$.each( data.groups, function( key, value ) {
-							$('#node-input-deviceid').find('option').end().append('<option value="g-'+key+'">'+value.name+'</option>');
-						});
-						$('#node-input-deviceid').val(valuedevice);
-					}
-				});
-			};
-			$("#node-input-serverid").change(deviceRefresh);
-			refresh(function(){
-				$('#node-input-serverid').val(valueserver);
-				deviceRefresh();
-				/*
-				$("#node-input-devicetype").change(function(){
-					$('#node-input-serverid').find('option').remove();
-					refresh();
-				});*/
-			});
-			function refresh(listener){
-				$.ajax({
-				  url: "philipshue/server",
-				  success: function(data) {
-					var data=JSON.parse(data);
-					for (var i=0;i<data.length;i++) {
-						var name = data[i].name;
-						if(!data[i].name)
-							name = "Bridge";
-						$('#node-input-serverid').find('option').end().append('<option value="'+data[i].id+'">'+name+'</option>');
-					}
-					if (typeof(listener)!=="undefined"){
-						listener();
-					}
-				 }
-				});
-			};
+        },
+        error:console.error
+      });
 		}
 	};
     RED.nodes.registerType('Hue Pull', {
         category: 'Things',
         color: "#ffffff",
         defaults: {
-		name: {value: ""}
+		      name: {value: ""}
         },
         inputs: 1,
         outputs: 2,
@@ -240,7 +251,7 @@ return msg;</pre>
         category: 'Things',
         color: "#ffffff",
         defaults: {
-		name: {value: ""}
+		      name: {value: ""}
         },
         inputs: 1,
         outputs: 2,

@@ -70,6 +70,9 @@ module.exports = function(RED) {
   	
 		this.ip=getIpForServer(this.serverid);
 		this.on("input",function(msg) {
+			var _ci = readConfiguration(that.id);
+			that.deviceid = _ci.deviceid;
+			that.serverid = _ci.serverid;
 			if (!that.ip){
 				that.ip=getIpForServer(this.serverid);
 			}
@@ -104,6 +107,9 @@ module.exports = function(RED) {
 
 		this.ip=getIpForServer(this.serverid);
 		this.on("input",function(msg) {
+			var _ci = readConfiguration(that.id);
+			that.deviceid = _ci.deviceid;
+			that.serverid = _ci.serverid;
 			if (!that.ip){
 				that.ip=getIpForServer(this.serverid);
 			}
